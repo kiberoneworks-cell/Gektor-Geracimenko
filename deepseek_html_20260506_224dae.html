@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Крестики-Нолики | Игра для двоих</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(22, 34, 48, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 56px;
+            padding: 28px 24px 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .game-card {
+            background: #1e2f3c;
+            border-radius: 40px;
+            padding: 24px 20px 28px;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 0 0 12px 0;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #F9F3D9, #FFD966);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .status-area {
+            background: #0f1922;
+            border-radius: 100px;
+            padding: 12px 20px;
+            text-align: center;
+            margin-bottom: 28px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .status-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #FFE3B0;
+            text-shadow: 0 1px 2px black;
+            letter-spacing: 1px;
+        }
+
+        .status-text span {
+            display: inline-block;
+            min-width: 40px;
+            color: #FFB347;
+            font-size: 1.9rem;
+            margin-left: 8px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background-color: #13212b;
+            padding: 16px;
+            border-radius: 44px;
+            margin-bottom: 28px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .cell {
+            background: #2C3E42;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 700;
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 8px 0 #0F191F, inset 0 1px 1px rgba(255,255,255,0.1);
+            color: #F5E7D3;
+            text-shadow: 0 2px 4px black;
+        }
+
+        .cell.X-move {
+            color: #6FC3DF;
+            text-shadow: 0 0 6px #4aa3c9;
+        }
+
+        .cell.O-move {
+            color: #F4A261;
+            text-shadow: 0 0 6px #e98a3e;
+        }
+
+        .cell.winning {
+            background: #6A9C78;
+            box-shadow: 0 0 12px 2px #C5E99B;
+            color: #F9F3CF;
+            transform: scale(1.02);
+            transition: 0.1s linear;
+        }
+
+        .cell:active {
+            transform: scale(0.96);
+        }
+
+        /* анимация и hover */
+        .cell:hover:not(.winning) {
+            background: #3E5A61;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 #0F191F;
+        }
+
+        .reset-btn {
+            width: 80%;
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(110deg, #F4A261, #E76F51);
+            border: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 14px 20px;
+            border-radius: 60px;
+            color: #2C2C2C;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.15s linear;
+            box-shadow: 0 8px 0 #9C4A2C;
+            font-family: inherit;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #9C4A2C;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            margin-top: 18px;
+            color: #89A7B1;
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
+            .game-container {
+                padding: 16px 12px 20px;
+            }
+            .board {
+                gap: 8px;
+                padding: 12px;
+            }
+            .cell {
+                font-size: 3rem;
+                border-radius: 20px;
+            }
+            .status-text {
+                font-size: 1.25rem;
+            }
+            .status-text span {
+                font-size: 1.5rem;
+            }
+            .reset-btn {
+                font-size: 1.2rem;
+                padding: 12px;
+                width: 90%;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* отключение кликов после победы */
+        .board.inactive .cell {
+            cursor: default;
+            pointer-events: none;
+            filter: brightness(0.95);
+        }
+
+        /* восстановление активности для кнопки */
+        .board:not(.inactive) .cell {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-card">
+        <h1>✧ КРЕСТИКИ-НОЛИКИ ✧</h1>
+
+        <div class="status-area">
+            <div class="status-text" id="statusMessage">
+                🎲 Ход игрока: <span id="playerTurn">X</span>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <button class="reset-btn" id="resetGameBtn">⟳ Новая игра</button>
+        <footer>игроки ходят по очереди • нажми на клетку</footer>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- Игровые переменные ----------
+        let boardState = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';        // X всегда начинает
+        let gameActive = true;
+        let winningComboIndices = null;   // храним выигрышную комбинацию для подсветки
+
+        // Элементы DOM
+        const boardContainer = document.getElementById('board');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const playerTurnSpan = document.getElementById('playerTurn');
+        const resetBtn = document.getElementById('resetGameBtn');
+
+        // Массив ячеек (DOM элементы)
+        let cellElements = [];
+
+        // Все выигрышные линии (индексы 0-8)
+        const winPatterns = [
+            [0, 1, 2], // верхняя строка
+            [3, 4, 5], // средняя строка
+            [6, 7, 8], // нижняя строка
+            [0, 3, 6], // левый столбец
+            [1, 4, 7], // центр столбец
+            [2, 5, 8], // правый столбец
+            [0, 4, 8], // главная диагональ
+            [2, 4, 6]  // побочная диагональ
+        ];
+
+        // Функция для обновления текста статуса
+        function updateStatusMessage() {
+            if (!gameActive) {
+                // Если игра завершена, сообщение уже установлено в finishGame / drawGame
+                return;
+            }
+            // Активная игра: показываем текущего игрока
+            playerTurnSpan.textContent = currentPlayer;
+            statusMessageDiv.innerHTML = `🎲 Ход игрока: <span id="playerTurn">${currentPlayer}</span>`;
+            // нужно перепривязать span (т.к innerHTML заменяет элемент) обновим ссылку
+            // но лучше просто обновить textContent
+            const newSpan = statusMessageDiv.querySelector('#playerTurn');
+            if (newSpan) newSpan.textContent = currentPlayer;
+        }
+
+        // Прямое обновление без потери ссылки
+        function refreshTurnUI() {
+            if (gameActive) {
+                statusMessageDiv.innerHTML = `🎲 Ход игрока: <span id="playerTurn">${currentPlayer}</span>`;
+            }
+        }
+
+        // Обновить UI при окончании игры (победа)
+        function finishGame(winner, pattern) {
+            gameActive = false;
+            winningComboIndices = pattern;
+            // Подсветка победных клеток
+            if (pattern && pattern.length) {
+                for (let idx of pattern) {
+                    if (cellElements[idx]) {
+                        cellElements[idx].classList.add('winning');
+                    }
+                }
+            }
+            // Отобразить победителя
+            statusMessageDiv.innerHTML = `🏆 ПОБЕДА! Победитель: <strong style="font-size:1.8rem; color:#FFD966;">${winner}</strong> 🏆`;
+            // Деактивируем клики через класс на доске (доп. защита)
+            boardContainer.classList.add('inactive');
+        }
+
+        // Ничья
+        function finishDraw() {
+            gameActive = false;
+            winningComboIndices = null;
+            statusMessageDiv.innerHTML = `🤝 НИЧЬЯ! 🤝 <br> <span style="font-size:0.9rem;">нажмите "новая игра"</span>`;
+            boardContainer.classList.add('inactive');
+        }
+
+        // Проверка победы: возвращает массив индексов выигрышной комбинации или null
+        function checkWin(board) {
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return pattern;  // возвращаем выигрышную линию
+                }
+            }
+            return null;
+        }
+
+        // Проверка на ничью (все клетки заполнены)
+        function isDraw(board) {
+            return board.every(cell => cell !== '');
+        }
+
+        // Обработчик клика по клетке
+        function handleCellClick(index) {
+            // Если игра не активна, или клетка уже занята - ничего не делаем
+            if (!gameActive) return;
+            if (boardState[index] !== '') return;
+
+            // Ставим текущего игрока
+            boardState[index] = currentPlayer;
+            const cellDiv = cellElements[index];
+            cellDiv.textContent = currentPlayer;
+            // добавляем стиль для цвета X или O
+            if (currentPlayer === 'X') {
+                cellDiv.classList.add('X-move');
+                cellDiv.classList.remove('O-move');
+            } else {
+                cellDiv.classList.add('O-move');
+                cellDiv.classList.remove('X-move');
+            }
+
+            // Проверяем победу после хода
+            const winPattern = checkWin(boardState);
+            if (winPattern) {
+                // Есть победитель
+                finishGame(currentPlayer, winPattern);
+                return;
+            }
+
+            // Проверяем ничью
+            if (isDraw(boardState)) {
+                finishDraw();
+                return;
+            }
+
+            // Смена игрока
+            currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+            // Обновляем статус
+            refreshTurnUI();
+        }
+
+        // Полная перезагрузка игры (сброс)
+        function resetGame() {
+            // Очищаем состояние доски
+            boardState = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';          // X начинает всегда
+            gameActive = true;
+            winningComboIndices = null;
+
+            // Убираем подсветку со всех ячеек
+            for (let i = 0; i < cellElements.length; i++) {
+                const cell = cellElements[i];
+                if (cell) {
+                    cell.textContent = '';
+                    cell.classList.remove('winning', 'X-move', 'O-move');
+                }
+            }
+
+            // Убираем блокировку доски
+            boardContainer.classList.remove('inactive');
+
+            // Обновляем статус UI
+            statusMessageDiv.innerHTML = `🎲 Ход игрока: <span id="playerTurn">X</span>`;
+            // фикс перепривязки ссылки (пользовательский span)
+            const newSpan = statusMessageDiv.querySelector('#playerTurn');
+            if (newSpan) newSpan.textContent = 'X';
+            // обновляем переменную отображения
+            playerTurnSpan.textContent = 'X';  // на всякий случай
+        }
+
+        // Создание игрового поля (динамически)
+        function createBoard() {
+            boardContainer.innerHTML = '';
+            cellElements = [];
+            // Сбрасываем дополнительные классы доски
+            boardContainer.classList.remove('inactive');
+            // Генерируем 9 клеток
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                // data-index для удобства
+                cell.setAttribute('data-index', i);
+                cell.textContent = '';   // пусто
+                cell.addEventListener('click', (function(idx) {
+                    return function() { handleCellClick(idx); };
+                })(i));
+                boardContainer.appendChild(cell);
+                cellElements.push(cell);
+            }
+        }
+
+        // инициализация заново (полный ресет + поле)
+        function initGame() {
+            createBoard();
+            resetGame();  // сбросит состояние и очистит тексты, подсветку и классы
+        }
+
+        // Добавляем обработчик кнопки сброса
+        resetBtn.addEventListener('click', () => {
+            resetGame();
+            // если были какие-то лишние классы на борде - удаляем
+            boardContainer.classList.remove('inactive');
+            // Также перерисовать внешний вид ячеек после сброса уже есть в resetGame,
+            // но дополнительная страховка: сбросить все иконки и подсветку.
+            for (let i = 0; i < cellElements.length; i++) {
+                cellElements[i].textContent = '';
+                cellElements[i].classList.remove('winning', 'X-move', 'O-move');
+            }
+            // убедимся что доска пуста и игра активна
+            boardState.fill('');
+            gameActive = true;
+            currentPlayer = 'X';
+            winningComboIndices = null;
+            statusMessageDiv.innerHTML = `🎲 Ход игрока: <span id="playerTurn">X</span>`;
+        });
+
+        // Запускаем игру
+        initGame();
+    })();
+</script>
+</body>
+</html>
